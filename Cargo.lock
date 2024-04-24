@@ -602,6 +602,7 @@ name = "lets_try_again"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "serde",
 ]
 
 [[package]]
