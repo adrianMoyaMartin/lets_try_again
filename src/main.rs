@@ -1,5 +1,5 @@
 use std::{
-     io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
+     error::Error, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
 };
 
 fn main() {
@@ -10,7 +10,7 @@ fn main() {
         match stream {
             Ok(_) => {
                 let stream = stream.unwrap();
-                handle_connection(stream)
+                handle_connection(stream);
             },
             Err(_) => {
                 println!(" error during connection ");
@@ -18,17 +18,18 @@ fn main() {
         }
     }
 }
-fn handle_connection(mut stream: TcpStream) {
-    
-    let mut buffer = [0; 2048];
-    let stream_data_size = stream.read(&mut buffer).unwrap();
+fn handle_connection(mut stream: TcpStream) -> Result<usize,Box<dyn Error + 'static>> {
+    let mut buffer = [0; 8192];
+    let stream_data_size = stream.read(&mut buffer)?;
 
-    let buffer = vec![0; stream_data_size];
+    let mut buffer = vec![0; stream_data_size];
+    let _stream_data = stream.read(&mut buffer)?;
+    println!("{_stream_data:?}");
 
     let mut headers = [httparse::EMPTY_HEADER; 4];
     let mut req = httparse::Request::new(&mut headers);
     println!("{buffer:?}");
-    let res = req.parse(&buffer).unwrap();
+    let res = req.parse(&buffer)?;
 
     let buf_reader = BufReader::new(&mut stream);
     
@@ -41,8 +42,9 @@ fn handle_connection(mut stream: TcpStream) {
     println!("Request: {:#?}", http_request);
 
     let response = "HTTP/1.1 200 OK\r\n\r\n";
-    stream.write_all(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
+    stream.write_all(response.as_bytes())?;
+    stream.flush()?;
 
     println!("Headers: {:?}", res);
+    return Ok(1);
 }
