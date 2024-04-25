@@ -10,7 +10,7 @@
             "name": "Debug executable 'lets_try_again'",
             "cargo": {
                 "args": [
-                    "run",
+                    "r",
                     "--release",
                     "--bin=lets_try_again",
                     "--package=lets_try_again"
@@ -23,24 +23,24 @@
             "args": [],
             "cwd": "${workspaceFolder}"
         },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'lets_try_again'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=lets_try_again",
-                    "--package=lets_try_again"
-                ],
-                "filter": {
-                    "name": "lets_try_again",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        }
+        // {
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "name": "Debug unit tests in executable 'lets_try_again'",
+        //     "cargo": {
+        //         "args": [
+        //             "test",
+        //             "--no-run",
+        //             "--bin=lets_try_again",
+        //             "--package=lets_try_again"
+        //         ],
+        //         "filter": {
+        //             "name": "lets_try_again",
+        //             "kind": "bin"
+        //         }
+        //     },
+        //     "args": [],
+        //     "cwd": "${workspaceFolder}"
+        // }
     ]
 }
