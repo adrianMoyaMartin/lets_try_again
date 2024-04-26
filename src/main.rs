@@ -1,5 +1,5 @@
 use std::{
-        error::Error, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
+        error::Error, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}, fs
 };
 use threadpool::ThreadPool;
 
@@ -34,12 +34,14 @@ fn handle_connection(mut stream: TcpStream) -> Result<usize,Box<dyn Error + 'sta
         .map(|result| result.unwrap())
         .take_while(|line| !line.is_empty())
         .collect();
-     let (request_type, path) = request_type(&http_request[0]).unwrap();
+
+    let (request_type, path) = request_type(&http_request[0]).unwrap();
     println!("{:?}, {}",request_type, path);
 
     println!("Request: {:#?}", http_request);
-
-    let response = "HTTP/1.1 200 OK\r\n\r\n";
+    let contents = fs::read_to_string("src/a.html").unwrap();
+    let length = contents.len();
+    let response = format!("HTTP/1.1 200 OK\r\nContent-Length: {length}\r\n\r\n{contents}");
     stream.write_all(response.as_bytes())?;
     stream.flush()?;
 
