@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 httparse = "1.8.0"
+threadpool = "1.8.1"
 

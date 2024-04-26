@@ -1,16 +1,20 @@
 use std::{
-     error::Error, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
+        error::Error, io::{prelude::*, BufReader}, net::{TcpListener, TcpStream}
 };
+use threadpool::ThreadPool;
 
 fn main() {
+    let pool = ThreadPool::new(4);
     let listener = TcpListener::bind("127.0.0.1:8000").unwrap();
     println!("connection made");
-
     for stream in listener.incoming() {
         match stream {
             Ok(_) => {
                 let stream = stream.unwrap();
-                handle_connection(stream);
+                pool.execute( move||{   
+                    let _ = handle_connection(stream);
+                });
+                pool.join();
             },
             Err(_) => {
                 println!(" error during connection ");
@@ -19,25 +23,19 @@ fn main() {
     }
 }
 fn handle_connection(mut stream: TcpStream) -> Result<usize,Box<dyn Error + 'static>> {
-    let mut buffer = [0; 8192];
-    let stream_data_size = stream.read(&mut buffer)?;
+    let mut buf_reader = BufReader::new(&mut stream);
 
-    let mut buffer = vec![0; stream_data_size];
-    let _stream_data = stream.read(&mut buffer)?;
-    println!("{_stream_data:?}");
+     let mut buffer = vec![];
 
-    let mut headers = [httparse::EMPTY_HEADER; 4];
-    let mut req = httparse::Request::new(&mut headers);
-    println!("{buffer:?}");
-    let res = req.parse(&buffer)?;
-
-    let buf_reader = BufReader::new(&mut stream);
+    let _ = buf_reader.read(&mut buffer);
     
     let http_request: Vec<_> = buf_reader
         .lines()
         .map(|result| result.unwrap())
         .take_while(|line| !line.is_empty())
         .collect();
+     let (request_type, path) = request_type(&http_request[0]).unwrap();
+    println!("{:?}, {}",request_type, path);
 
     println!("Request: {:#?}", http_request);
 
@@ -45,6 +43,19 @@ fn handle_connection(mut stream: TcpStream) -> Result<usize,Box<dyn Error + 'sta
     stream.write_all(response.as_bytes())?;
     stream.flush()?;
 
-    println!("Headers: {:?}", res);
     return Ok(1);
+}
+fn request_type(x: &str) -> Option<(String, String)> {
+    let binding = x.to_string();
+    let mut array_of_x = binding.split_whitespace();
+    if let Some(first_word) = array_of_x.next() {
+        match first_word {
+            "GET" => return Some(("Get".to_string(), array_of_x.next().unwrap().to_string())),
+            "POST" => return Some(("POST".to_string(), array_of_x.next().unwrap().to_string())),
+            _ => return Some(("Something".to_owned(), "/".to_string()))
+        }
+    } else {
+        println!("Nothing here!");
+        return Some(("_".to_string(), "_".to_string()));
+    }
 }
