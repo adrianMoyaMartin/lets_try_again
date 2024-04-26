@@ -1,8 +1,11 @@
+<!DOCTYPE html >
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="description" content="howdy there!"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>LAN from Rust!</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   </head>
   <body id="a"></body>
   <script>
@@ -16,11 +19,10 @@
     }
 
     function setRandomColor() {
-      document.getElementById("a").style.backgroundColor = getRandomColor;
+      document.getElementById("a").style.backgroundColor = getRandomColor();
     }
     setInterval(() => {
       setRandomColor();
-      console.log("aaaa");
-    }, 10);
+    }, 1000);
   </script>
 </html>

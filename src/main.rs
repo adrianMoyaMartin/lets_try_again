@@ -5,7 +5,7 @@ use threadpool::ThreadPool;
 
 fn main() {
     let pool = ThreadPool::new(4);
-    let listener = TcpListener::bind("127.0.0.1:8000").unwrap();
+    let listener = TcpListener::bind("192.168.178.205:8000").unwrap();
     println!("connection made");
     for stream in listener.incoming() {
         match stream {
